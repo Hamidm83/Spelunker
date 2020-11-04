@@ -10,18 +10,26 @@ import cv2
 if __name__ == '__main__':
     print("start ")
     camera = PiCamera()
+    camera.resolution=(640,480)
     camera.framerate = 32
     camera.exposure_mode = 'auto'
     camera.awb_mode = 'auto'
     rawCapture = PiRGBArray(camera)
     time.sleep(0.1)
+    dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_100)
     numFrame = 0
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         image = frame.array
         src = image
         image_output = src.copy()
 
-        cv2.imshow('input',image_output)
+        gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+        res = cv2.aruco.detectMarkers(gray,dictionary)
+        if len(res[0])>0:
+            cv2.aruco.drawDetectedMarkers(gray,res[0],res[1])
+            cv2.imshow('frame',gray)
+        else:
+            cv2.imshow('input',image_output)
         key = cv2.waitKey(1)
         rawCapture.truncate(0)
         numFrame += 1

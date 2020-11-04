@@ -1,18 +1,20 @@
-#import time
-#import cv2
-#import numpy as np
+import numpy
+import cv2
+from cv2 import aruco
+import pickle
+import glob
 
-##!/usr/bin/env python3
+# from userDefine file
+CHARUCOBOARD_ROWCOUNT = 7
+CHARUCOBOARD_COLCOUNT = 5 
+ARUCO_DICT = aruco.Dictionary_get(aruco.DICT_4X4_100)
 
-#import os
-#import sys
-
-#import cv2
-
-#def mm_to_pixel(mm):
-#    return int((mm * 72) / 25.4)
-
-
+CHARUCO_BOARD = aruco.CharucoBoard_create(
+        squaresX=CHARUCOBOARD_COLCOUNT,
+        squaresY=CHARUCOBOARD_ROWCOUNT,
+        squareLength=0.04,
+        markerLength=0.02,
+        dictionary=ARUCO_DICT)
 #def main():
 #    dictionary_bits = int(sys.argv[1])
 #    dictionary_length = int(sys.argv[2])
