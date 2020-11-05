@@ -24,12 +24,10 @@ if __name__ == '__main__':
         image_output = src.copy()
 
         gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-        res = cv2.aruco.detectMarkers(gray,dictionary)
-        if len(res[0])>0:
-            cv2.aruco.drawDetectedMarkers(gray,res[0],res[1])
-            cv2.imshow('frame',gray)
-        else:
-            cv2.imshow('input',image_output)
+        corners, ids, rejectedCorners = cv2.aruco.detectMarkers(gray,dictionary)
+        if len(corners)>0:
+            cv2.aruco.drawDetectedMarkers(image_output,corners,ids)
+        cv2.imshow('camTest',image_output)
         key = cv2.waitKey(1)
         rawCapture.truncate(0)
         numFrame += 1
