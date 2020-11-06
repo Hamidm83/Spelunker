@@ -35,7 +35,7 @@ def aprilTagPositioning():
         squareLength=SQUARE_LENGTH,
         markerLength=MARKER_LENGTH,
         dictionary=ARUCO_DICT)
-    camera_matrix,dis_coeffs = readCalibrationFile('calibration.yaml')
+    camera_matrix,dis_coeffs = estimatePose.readCalibrationFile('calibration.yaml')
     camera = PiCamera()
     camera.resolution = (640, 480)
     print('ex:',camera.exposure_mode)
