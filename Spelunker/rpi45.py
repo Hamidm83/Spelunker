@@ -53,6 +53,7 @@ def aprilTagPositioning():
     rawCapture = PiRGBArray(camera)
     time.sleep(0.1)
     numFrame = 0
+    key = -1
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         image = frame.array
         if isVampire == True:
