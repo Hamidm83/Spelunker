@@ -60,7 +60,7 @@ def relative_pose(rotation_vector_parent, translation_vector_parent, rotation_ve
     return composed_rotation_vector, composed_translation_vector
 
 
-def aprilTagPositioning():
+def main():
     CHARUCOBOARD_X = 10
     CHARUCOBOARD_Y = 7
     SQUARE_LENGTH = 33
@@ -119,3 +119,7 @@ def aprilTagPositioning():
 
     cv2.destroyAllWindows()
     return
+
+
+if __name__ == '__main__':
+    main()
