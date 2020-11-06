@@ -63,7 +63,7 @@ def aprilTagPositioning():
         corners, ids, rejected_corners = cv2.aruco.detectMarkers(gray_img, ARUCO_DICT)
         if showMarker == True:
             image_output = cv2.aruco.drawDetectedMarkers(image_output, corners, ids,borderColor=(150, 0, 150))
-        if numpy.all(ids != None): 
+        if np.all(ids != None): 
             rotation_vectors, translation_vectors, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, MARKER_LENGTH, camera_matrix, dis_coeffs)           
             for rvec, tvec in zip(rotation_vectors, translation_vectors):
                     image_output = aruco.drawAxis(image_output, camera_matrix, dis_coeffs , rvec, tvec, SQUARE_LENGTH)
