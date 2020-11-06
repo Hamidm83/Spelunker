@@ -88,5 +88,5 @@ def disconnect():
 
 #sio.connect('http://192.168.0.31:2607', headers={'device_id':'pi_1'}) #SirjanNAlbany
 #sio.connect('http://192.168.43.119:12607', headers={'device_id':'pi_1'}) # HamidPhone Hotspot    IPv4 Address. . . . . . . . . . . : 192.168.43.119
-sio.connect('http://172.16.13.44:12607', headers={'device_id':'pi_37'}) # Trimble Guest   IPv4 Address. . . . . . . . . . . : 172.16.13.44
+sio.connect('http://172.16.13.44:12607', headers={'device_id':'pi_45'}) # Trimble Guest   IPv4 Address. . . . . . . . . . . : 172.16.13.44
 sio.wait()
