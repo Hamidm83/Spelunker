@@ -13,21 +13,69 @@ import cv2
 from cv2 import aruco
 import VampireApi as vmp
 
+from time import sleep
+import board
+import busio
+import RPi.GPIO as GPIO
+from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
+from Adafruit_CCS811 import Adafruit_CCS811
+
+
+
 sio = socketio.Client()
-def sensor_test():
-    val = 1
+
+    #Alarm
+def checkSelfAlarm(temp ,tvoc ,co2):
+    if temp > 40 or tvoc > 500 or co2 > 1000:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        GPIO.setup(18,GPIO.OUT)
+        print ("LED on")
+        GPIO.output(18,GPIO.HIGH)
+        time.sleep(1)
+        GPIO.output(18,GPIO.LOW)
+        print ("Acceleration = %.2f m/s^2" % acc)
+   
+    #Accelerometer 
+def sensor_data_acc():
+    i2c = busio.I2C(board.SCL, board.SDA)
+    accl_sensor = LSM6DSOX(i2c)
     while True:
-        val = val + 10
-        if val == 31:
-            img = cv2.imread('/home/pi/10.jpg')
-            retval, buffer = cv2.imencode('.jpg', img)
-            jpg_as_text = base64.b64encode(buffer)
-            jpg_original = base64.b64decode(jpg_as_text)
- #           jpg_as_np = np.frombuffer(jpg_original,dtype=np.uint8)            
-            sio.emit('my_message',{'hamid':jpg_original})
-        else:
-            sio.emit('my_message',{'hamid':val})
-        sio.sleep(2)
+        x = accl_sensor.acceleration[0]
+        y = accl_sensor.acceleration[1]
+        z = accl_sensor.acceleration[2]
+        acc = math.sqrt(x*x + y*y + z*z)
+    #print ("Acceleration = %.2f m/s^2" % acc)
+        sio.emit('my_message',{'acc':acc})
+        if acc > 20:
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setwarnings(False)
+            GPIO.setup(18,GPIO.OUT)
+            GPIO.output(18,GPIO.HIGH)
+            time.sleep(2)
+            GPIO.output(18,GPIO.LOW)
+        sio.sleep(1)
+
+
+     #Gas sensor
+def sensor_data_gas():
+    ccs =  Adafruit_CCS811()
+    while not ccs.available():
+        pass
+    temp = ccs.calculateTemperature()
+    ccs.tempOffset = temp - 25.0
+    if ccs.available():
+        temp = ccs.calculateTemperature()
+        temp = round(temp,2)
+        co2 = ccs.geteCO2()
+        tvoc = ccs.getTVOC() # Total Volatile Organic Compounds (TVOCs)
+        if not ccs.readData():
+          #print ("CO2: ", co2, "ppm, TVOC: ", tvoc, " temp:", (round(temp,2)))
+            sio.emit('my_message',{'co2':co2})
+            sio.emit('my_message',{'tvoc':tvoc})
+            sio.emit('my_message',{'temp':temp})
+            sio.sleep(1)
+        checkSelfAlarm(temp ,tvoc ,co2)
 
 def aprilTagPositioning():
     CHARUCOBOARD_X = 10
@@ -79,12 +127,14 @@ def aprilTagPositioning():
         if key == 118 :
             isVampire = not isVampire
             print('vampire', isVampire)
-        sio.sleep(2)
+        sio.sleep(1)
 
 @sio.event
 def connect():
     print('connection established')
     sio.start_background_task(aprilTagPositioning)
+    sio.start_background_task(sensor_data_gas)
+    sio.start_background_task(sensor_data_acc)
 
 @sio.event
 def my_message(data):
@@ -95,7 +145,8 @@ def my_message(data):
 def disconnect():
     print('disconnected from server')
 
+sio.connect('http://localhost:5000', headers={'device_id':'pi_2'})
 #sio.connect('http://192.168.0.31:2607', headers={'device_id':'pi_1'}) #SirjanNAlbany
 #sio.connect('http://192.168.43.119:12607', headers={'device_id':'pi_1'}) # HamidPhone Hotspot    IPv4 Address. . . . . . . . . . . : 192.168.43.119
-sio.connect('http://172.16.13.44:12607', headers={'device_id':'pi_37'}) # Trimble Guest   IPv4 Address. . . . . . . . . . . : 172.16.13.44
+#sio.connect('http://172.16.13.44:12607', headers={'device_id':'pi_37'}) # Trimble Guest   IPv4 Address. . . . . . . . . . . : 172.16.13.44
 sio.wait()
