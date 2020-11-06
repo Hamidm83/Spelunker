@@ -40,13 +40,13 @@ def checkSelfAlarm(temp ,tvoc ,co2):
 def sensor_data_acc():
     i2c = busio.I2C(board.SCL, board.SDA)
     accl_sensor = LSM6DSOX(i2c)
+    acc1 = 0
     while True:
         x = accl_sensor.acceleration[0]
         y = accl_sensor.acceleration[1]
         z = accl_sensor.acceleration[2]
         acc = math.sqrt(x*x + y*y + z*z)
-    #print ("Acceleration = %.2f m/s^2" % acc)
-        sio.emit('my_message',{'acc':acc})
+        sio.emit('my_message',{'acc':acc1})
         if acc > 20:
             GPIO.setmode(GPIO.BCM)
             GPIO.setwarnings(False)
@@ -64,7 +64,7 @@ def sensor_data_gas():
         pass
     temp = ccs.calculateTemperature()
     ccs.tempOffset = temp - 25.0
-    if ccs.available():
+    while ccs.available():
         temp = ccs.calculateTemperature()
         temp = round(temp,2)
         co2 = ccs.geteCO2()
@@ -76,6 +76,14 @@ def sensor_data_gas():
             sio.emit('my_message',{'temp':temp})
             sio.sleep(1)
         checkSelfAlarm(temp ,tvoc ,co2)
+#def sensor_data_gas():
+#    val = 1
+#    while True:
+#        val = val + 5
+#        sio.emit('my_message',{'co2':val})
+#        val = val + 10
+#        sio.emit('my_message',{'temp':val})
+#        sio.sleep(2)
 
 def aprilTagPositioning():
     CHARUCOBOARD_X = 10
