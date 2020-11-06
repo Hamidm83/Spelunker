@@ -34,19 +34,17 @@ def checkSelfAlarm(temp ,tvoc ,co2):
         GPIO.output(18,GPIO.HIGH)
         time.sleep(1)
         GPIO.output(18,GPIO.LOW)
-        print ("Acceleration = %.2f m/s^2" % acc)
    
     #Accelerometer 
 def sensor_data_acc():
     i2c = busio.I2C(board.SCL, board.SDA)
     accl_sensor = LSM6DSOX(i2c)
-    acc1 = 0
     while True:
         x = accl_sensor.acceleration[0]
         y = accl_sensor.acceleration[1]
         z = accl_sensor.acceleration[2]
         acc = math.sqrt(x*x + y*y + z*z)
-        sio.emit('my_message',{'acc':acc1})
+        sio.emit('my_message',{'acc':acc})
         if acc > 20:
             GPIO.setmode(GPIO.BCM)
             GPIO.setwarnings(False)
@@ -55,7 +53,6 @@ def sensor_data_acc():
             time.sleep(2)
             GPIO.output(18,GPIO.LOW)
         sio.sleep(1)
-
 
      #Gas sensor
 def sensor_data_gas():
@@ -69,7 +66,7 @@ def sensor_data_gas():
         temp = round(temp,2)
         co2 = ccs.geteCO2()
         tvoc = ccs.getTVOC() # Total Volatile Organic Compounds (TVOCs)
-        if not ccs.readData():
+        if ccs.readData():
           #print ("CO2: ", co2, "ppm, TVOC: ", tvoc, " temp:", (round(temp,2)))
             sio.emit('my_message',{'co2':co2})
             sio.emit('my_message',{'tvoc':tvoc})
